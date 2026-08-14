@@ -3,14 +3,16 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/auth.routes.js';
 import taskRoutes from './routes/task.routes.js';
 import { initDb } from './services/task.service.js';
+import cors from 'cors';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware to parse JSON payloads
-app.use(express.json());
+app.use(cors()); //used in order to prevent a web blocking.
+
+app.use(express.json());// Middleware to parse JSON payloads
 
 // Initialize Database Tables on server startup
 (async () => {
