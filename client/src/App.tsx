@@ -4,6 +4,7 @@ import AddNewTask from './components/AddNewTask';
 import { TaskType } from './types/task';
 
 function App() {
+  //const [loggedIn, setLoggedIn] = useState(false);
   const [tasks, setTasks] = useState<TaskType[]>(() => {
     const saved = localStorage.getItem('saved-tasks');
     return saved ? JSON.parse(saved) : []; 
