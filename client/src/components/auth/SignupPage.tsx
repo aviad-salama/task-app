@@ -1,8 +1,8 @@
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { useMutation } from '@tanstack/react-query';
 import { SignupData } from '../../types/auth';
-import { memo } from 'react';
 import { API_BASE_URL } from '../../config/api';
+import { memo } from 'react';
 
 interface SignupPageProps {
   onSwitchToLogin: () => void;
@@ -12,7 +12,6 @@ interface SignupPageProps {
 function SignupPage({ onSwitchToLogin, onSignupSuccess }: SignupPageProps) {
   const { register, handleSubmit, formState: { errors } } = useForm<SignupData>();
 
-  // NEW: TanStack Mutation for the Register API call
   const signupMutation = useMutation({
     mutationFn: async (data: SignupData) => {
       const res = await fetch(`${API_BASE_URL}/api/auth/register`, {
@@ -22,11 +21,10 @@ function SignupPage({ onSwitchToLogin, onSignupSuccess }: SignupPageProps) {
       });
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.message || 'Registration failed');
+        throw new Error(errorData.error || errorData.message || 'Registration failed');
       }
       return res.json();
     },
-    // On success, notify App.tsx to switch view back to login
     onSuccess: () => {
       onSignupSuccess();
     }
@@ -44,7 +42,6 @@ function SignupPage({ onSwitchToLogin, onSignupSuccess }: SignupPageProps) {
       >
         <h1 className="text-2xl font-bold text-white text-center mb-2">Create Account</h1>
 
-        {/* Display server error */}
         {signupMutation.isError && (
           <div className="bg-red-900 border border-red-700 text-red-100 p-2 rounded text-sm text-center">
             {signupMutation.error.message}
@@ -55,7 +52,10 @@ function SignupPage({ onSwitchToLogin, onSignupSuccess }: SignupPageProps) {
           <input
             type="text"
             placeholder="Full Name"
-            {...register('name', { required: 'Full name is required' })}
+            {...register('name', { 
+              required: 'Full name is required',
+              validate: (value) => value.trim().length > 0 || 'Full name cannot be empty'
+            })}
             className="p-2 bg-slate-900 border border-slate-700 rounded text-white focus:outline-none focus:border-indigo-500"
           />
           {errors.name && <span className="text-red-400 text-sm">{errors.name.message}</span>}

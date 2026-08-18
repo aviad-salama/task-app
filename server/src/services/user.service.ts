@@ -8,6 +8,7 @@ export interface User {
   email: string;
   password_hash: string;
   created_at: Date;
+  name?: string;
 }
 
 /**
@@ -15,9 +16,9 @@ export interface User {
  * The password hash must be generated before calling this function.
  * @returns The newly created user object, excluding the password hash.
  */
-export async function createUser(email: string, passwordHash: string): Promise<User> {
-  const query = 'INSERT INTO users (email, password_hash) VALUES ($1, $2) RETURNING id, email, created_at;';
-  const result = await pool.query(query, [email, passwordHash]);
+export async function createUser(email: string, passwordHash: string, name: string): Promise<User> {
+  const query = 'INSERT INTO users (email, password_hash, name) VALUES ($1, $2, $3) RETURNING id, email, name, created_at;';
+  const result = await pool.query(query, [email, passwordHash, name.trim()]);
   return result.rows[0] as User;
 }
 

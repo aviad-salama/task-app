@@ -5,14 +5,29 @@ import AddNewTask from '../components/AddNewTask';
 import { TaskType, BackendTaskItem } from '../types/task';
 import { API_BASE_URL } from '../config/api';
 
-// Interface defining props for MainPage
 interface MainPageProps {
   token: string;
   onLogout: () => void;
 }
 
+/**
+ * Decodes base64 payload from JWT token.
+ */
+function parseJwt(token: string) {
+  try {
+    return JSON.parse(atob(token.split('.')[1]));
+  } catch {
+    return null;
+  }
+}
+
 function MainPage({ token, onLogout }: MainPageProps) {
   const queryClient = useQueryClient();
+
+  // Extract user's mandatory name directly from JWT payload
+  const tokenPayload = parseJwt(token);
+  const userName = tokenPayload?.name ? tokenPayload.name.trim() : '';
+  const pageTitle = `${userName}'s Tasks`;
 
   // ==========================================
   // TANSTACK QUERY: FETCH TASKS (GET)
@@ -30,7 +45,6 @@ function MainPage({ token, onLogout }: MainPageProps) {
 
       const responseData = await res.json();
 
-      // Extract array based on backend response wrapper
       let tasksArray: BackendTaskItem[] = [];
       if (Array.isArray(responseData)) {
         tasksArray = responseData;
@@ -40,11 +54,10 @@ function MainPage({ token, onLogout }: MainPageProps) {
         tasksArray = responseData.tasks;
       }
 
-      // Map backend properties ('title') to frontend expected properties ('name')
       const mappedTasks: TaskType[] = tasksArray.map((item: BackendTaskItem) => ({
         id: item.id,
         name: item.title || item.name || '',
-        description: item.description || '',
+        description: item.description || item.details || item.body || item.content || item.desc || '',
         completed: Boolean(item.completed)
       }));
 
@@ -63,7 +76,6 @@ function MainPage({ token, onLogout }: MainPageProps) {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`
         },
-        // Send 'title' to match backend database schema
         body: JSON.stringify({ 
           title: newTask.name, 
           description: newTask.description 
@@ -77,7 +89,6 @@ function MainPage({ token, onLogout }: MainPageProps) {
       return res.json();
     },
     onSuccess: () => {
-      // Invalidate cache to refetch updated task list automatically
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
     }
   });
@@ -124,7 +135,6 @@ function MainPage({ token, onLogout }: MainPageProps) {
     }
   });
 
-  // Handler functions memoized with useCallback
   const handleAddTask = useCallback((newTask: TaskType) => {
     addTaskMutation.mutate(newTask);
   }, [addTaskMutation]);
@@ -140,12 +150,6 @@ function MainPage({ token, onLogout }: MainPageProps) {
     }
   }, [tasks, toggleTaskMutation]);
 
-  // Ensure tasks is an array before filtering
-  const safeTasks = Array.isArray(tasks) ? tasks : [];
-  const activeTasks = safeTasks.filter(task => !task.completed);
-  const completedTasks = safeTasks.filter(task => task.completed);
-
-  // Loading and Error UI states
   if (isLoading) {
     return <div className="text-white text-center mt-20 text-xl">Loading tasks...</div>;
   }
@@ -154,10 +158,15 @@ function MainPage({ token, onLogout }: MainPageProps) {
     return <div className="text-red-500 text-center mt-20 text-xl">Error loading tasks from server</div>;
   }
 
+  const safeTasks = Array.isArray(tasks) ? tasks : [];
+  const activeTasks = safeTasks.filter(task => !task.completed);
+  const completedTasks = safeTasks.filter(task => task.completed);
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-200 font-sans p-4 md:p-8 flex flex-col items-center">
       <header className="w-full max-w-md flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-white">My Tasks</h1>
+        {/* Directly renders user name heading */}
+        <h1 className="text-3xl font-bold text-white capitalize">{pageTitle}</h1>
         <button 
           onClick={onLogout}
           className="bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm px-3 py-1.5 rounded transition-colors border border-slate-700"
@@ -167,7 +176,6 @@ function MainPage({ token, onLogout }: MainPageProps) {
       </header>
 
       <main className="w-full max-w-md flex flex-col gap-6">
-        {/* Active tasks list */}
         <div className="flex gap-4 flex-col">
           {activeTasks.map((task) => (
             <Task 
@@ -182,10 +190,8 @@ function MainPage({ token, onLogout }: MainPageProps) {
           ))}
         </div>
 
-        {/* Component for adding new tasks */}
         <AddNewTask onAddTask={handleAddTask} />
 
-        {/* Completed tasks section */}
         {completedTasks.length > 0 && (
           <>
             <div className="text-2xl font-bold text-slate-500 mt-4 border-b border-slate-800 pb-2">

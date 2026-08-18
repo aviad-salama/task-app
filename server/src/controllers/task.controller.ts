@@ -4,9 +4,7 @@ import { addTask, listTasks, deleteTask, completeTask, type Task } from '../serv
 import { getCache, setCache, invalidateUserTaskCache } from '../services/cache.service.js';
 
 /**
- * HTTP Handler to list tasks for the authenticated user.
- * Implements Redis caching (Cache-Aside pattern). Returns data from RAM if present,
- * otherwise queries PostgreSQL and caches the result for future requests.
+ * HTTP Handler to list tasks belonging to the authenticated user.
  */
 export async function getTasksHandler(req: AuthenticatedRequest, res: Response) {
   try {
@@ -19,7 +17,8 @@ export async function getTasksHandler(req: AuthenticatedRequest, res: Response) 
       return res.json({ source: 'cache', data: cachedTasks });
     }
 
-    const tasks = await listTasks(filter);
+    // CHANGED: Passed userId to listTasks
+    const tasks = await listTasks(userId, filter);
     await setCache(cacheKey, tasks, 60);
 
     return res.json({ source: 'database', data: tasks });
@@ -30,12 +29,11 @@ export async function getTasksHandler(req: AuthenticatedRequest, res: Response) 
 }
 
 /**
- * HTTP Handler to create a new task with title and description. Invalidates user cache.
+ * HTTP Handler to create a task assigned to the authenticated user.
  */
 export async function createTaskHandler(req: AuthenticatedRequest, res: Response) {
   try {
     const userId = req.user!.id;
-    // CHANGED: Extracted both title and description from request body
     const { title, description } = req.body;
 
     if (!title || typeof title !== 'string') {
@@ -43,8 +41,8 @@ export async function createTaskHandler(req: AuthenticatedRequest, res: Response
     }
 
     const taskDescription = typeof description === 'string' ? description : '';
-    // CHANGED: Passed description to addTask service function
-    const newTask = await addTask(title, taskDescription);
+    // CHANGED: Passed userId to addTask
+    const newTask = await addTask(title, taskDescription, userId);
     await invalidateUserTaskCache(userId);
 
     return res.status(201).json(newTask);
@@ -55,14 +53,15 @@ export async function createTaskHandler(req: AuthenticatedRequest, res: Response
 }
 
 /**
- * HTTP Handler to toggle a task's status. Invalidates user cache.
+ * HTTP Handler to toggle status of a task owned by the authenticated user.
  */
 export async function updateTaskHandler(req: AuthenticatedRequest, res: Response) {
   try {
     const userId = req.user!.id;
     const id = req.params.id as string;
 
-    const updatedTask = await completeTask(id);
+    // CHANGED: Passed userId to completeTask
+    const updatedTask = await completeTask(id, userId);
     if (!updatedTask) {
       return res.status(404).json({ error: `Task ${id} not found.` });
     }
@@ -76,14 +75,15 @@ export async function updateTaskHandler(req: AuthenticatedRequest, res: Response
 }
 
 /**
- * HTTP Handler to delete a task. Invalidates user cache.
+ * HTTP Handler to delete a task owned by the authenticated user.
  */
 export async function deleteTaskHandler(req: AuthenticatedRequest, res: Response) {
   try {
     const userId = req.user!.id;
     const id = req.params.id as string;
 
-    const success = await deleteTask(id);
+    // CHANGED: Passed userId to deleteTask
+    const success = await deleteTask(id, userId);
     if (!success) {
       return res.status(404).json({ error: `Task ${id} not found.` });
     }
