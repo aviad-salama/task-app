@@ -1,0 +1,25 @@
+{
+  "name": "task-app",
+  "version": "1.0.0",
+  "description": "Fullstack Task Tracker Application",
+  "main": "index.js",
+  "scripts": {
+    "server": "cd server && npx tsx watch src/app.ts",
+    "client": "cd client && npm run dev",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aviad-salama/task-app.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/aviad-salama/task-app/issues"
+  },
+  "homepage": "https://github.com/aviad-salama/task-app#readme",
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}

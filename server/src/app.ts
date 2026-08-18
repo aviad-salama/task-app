@@ -30,7 +30,7 @@ app.get('/', (req, res) => {
 });
 
 // Defines main application routes prefixes
-app.use('/api', authRoutes);
+app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
 
 // Start the Express server

@@ -4,7 +4,7 @@ import Task from '../components/Task';
 import AddNewTask from '../components/AddNewTask';
 import { TaskType } from '../types/task';
 
-// Define props for MainPage
+// Interface defining props for MainPage
 interface MainPageProps {
   token: string;
   onLogout: () => void;
@@ -16,22 +16,44 @@ function MainPage({ token, onLogout }: MainPageProps) {
   // ==========================================
   // TANSTACK QUERY: FETCH TASKS (GET)
   // ==========================================
-  // CHANGED: Replaced useState and localStorage with useQuery
   const { data: tasks = [], isLoading, isError } = useQuery<TaskType[]>({
     queryKey: ['tasks'],
     queryFn: async () => {
       const res = await fetch('http://localhost:3000/api/tasks', {
         headers: { Authorization: `Bearer ${token}` }
       });
-      if (!res.ok) throw new Error('Failed to fetch tasks');
-      return res.json();
+
+      if (!res.ok) {
+        throw new Error('Failed to fetch tasks');
+      }
+
+      const responseData = await res.json();
+
+      // Extract array based on backend response wrapper
+      let tasksArray: any[] = [];
+      if (Array.isArray(responseData)) {
+        tasksArray = responseData;
+      } else if (responseData.data && Array.isArray(responseData.data)) {
+        tasksArray = responseData.data;
+      } else if (responseData.tasks && Array.isArray(responseData.tasks)) {
+        tasksArray = responseData.tasks;
+      }
+
+      // Map backend properties ('title') to frontend expected properties ('name')
+      const mappedTasks: TaskType[] = tasksArray.map((item: any) => ({
+        id: item.id,
+        name: item.title || item.name || '',
+        description: item.description || '',
+        completed: Boolean(item.completed)
+      }));
+
+      return mappedTasks;
     }
   });
 
   // ==========================================
   // TANSTACK QUERY: ADD TASK (POST)
   // ==========================================
-  // NEW: useMutation handles data modification on the server
   const addTaskMutation = useMutation({
     mutationFn: async (newTask: TaskType) => {
       const res = await fetch('http://localhost:3000/api/tasks', {
@@ -40,14 +62,21 @@ function MainPage({ token, onLogout }: MainPageProps) {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`
         },
-        // We only send name and description to the server
-        body: JSON.stringify({ name: newTask.name, description: newTask.description })
+        // Send 'title' to match backend database schema
+        body: JSON.stringify({ 
+          title: newTask.name, 
+          description: newTask.description 
+        })
       });
-      if (!res.ok) throw new Error('Failed to add task');
+
+      if (!res.ok) {
+        throw new Error('Failed to add task');
+      }
+
       return res.json();
     },
-    // NEW: onSuccess tells TanStack Query to refresh the 'tasks' list automatically
     onSuccess: () => {
+      // Invalidate cache to refetch updated task list automatically
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
     }
   });
@@ -61,7 +90,10 @@ function MainPage({ token, onLogout }: MainPageProps) {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });
-      if (!res.ok) throw new Error('Failed to delete task');
+
+      if (!res.ok) {
+        throw new Error('Failed to delete task');
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
@@ -69,7 +101,7 @@ function MainPage({ token, onLogout }: MainPageProps) {
   });
 
   // ==========================================
-  // TANSTACK QUERY: TOGGLE TASK (PATCH)
+  // TANSTACK QUERY: TOGGLE TASK STATUS (PATCH)
   // ==========================================
   const toggleTaskMutation = useMutation({
     mutationFn: async (task: TaskType) => {
@@ -81,16 +113,17 @@ function MainPage({ token, onLogout }: MainPageProps) {
         },
         body: JSON.stringify({ completed: !task.completed })
       });
-      if (!res.ok) throw new Error('Failed to update task');
+
+      if (!res.ok) {
+        throw new Error('Failed to update task');
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
     }
   });
 
-  // ==========================================
-  // HANDLERS (Calling the mutations)
-  // ==========================================
+  // Handler functions memoized with useCallback
   const handleAddTask = useCallback((newTask: TaskType) => {
     addTaskMutation.mutate(newTask);
   }, [addTaskMutation]);
@@ -106,13 +139,19 @@ function MainPage({ token, onLogout }: MainPageProps) {
     }
   }, [tasks, toggleTaskMutation]);
 
-  // Derived state for UI
-  const activeTasks = tasks.filter(task => !task.completed);
-  const completedTasks = tasks.filter(task => task.completed);
+  // Ensure tasks is an array before filtering
+  const safeTasks = Array.isArray(tasks) ? tasks : [];
+  const activeTasks = safeTasks.filter(task => !task.completed);
+  const completedTasks = safeTasks.filter(task => task.completed);
 
-  // Render loading state
-  if (isLoading) return <div className="text-white text-center mt-20">Loading tasks...</div>;
-  if (isError) return <div className="text-red-500 text-center mt-20">Error loading tasks</div>;
+  // Loading and Error UI states
+  if (isLoading) {
+    return <div className="text-white text-center mt-20 text-xl">Loading tasks...</div>;
+  }
+
+  if (isError) {
+    return <div className="text-red-500 text-center mt-20 text-xl">Error loading tasks from server</div>;
+  }
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-200 font-sans p-4 md:p-8 flex flex-col items-center">
@@ -120,13 +159,14 @@ function MainPage({ token, onLogout }: MainPageProps) {
         <h1 className="text-3xl font-bold text-white">My Tasks</h1>
         <button 
           onClick={onLogout}
-          className="bg-slate-800 hover:bg-slate-700 text-sm px-3 py-1 rounded transition-colors"
+          className="bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm px-3 py-1.5 rounded transition-colors border border-slate-700"
         >
           Logout
         </button>
       </header>
 
       <main className="w-full max-w-md flex flex-col gap-6">
+        {/* Active tasks list */}
         <div className="flex gap-4 flex-col">
           {activeTasks.map((task) => (
             <Task 
@@ -141,8 +181,10 @@ function MainPage({ token, onLogout }: MainPageProps) {
           ))}
         </div>
 
+        {/* Component for adding new tasks */}
         <AddNewTask onAddTask={handleAddTask} />
 
+        {/* Completed tasks section */}
         {completedTasks.length > 0 && (
           <>
             <div className="text-2xl font-bold text-slate-500 mt-4 border-b border-slate-800 pb-2">

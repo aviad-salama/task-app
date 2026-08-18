@@ -7,6 +7,7 @@ export interface Task {
   id: string;
   title: string;
   completed: boolean;
+  description: string;
 }
 
 /**
@@ -17,19 +18,21 @@ export async function initDb(): Promise<void> {
     CREATE TABLE IF NOT EXISTS tasks (
       id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
       title TEXT NOT NULL,
-      completed BOOLEAN DEFAULT FALSE
+      completed BOOLEAN DEFAULT FALSE,
+      description TEXT DEFAULT ''
     );
   `;
   await pool.query(query);
 }
 
 /**
- * Persists a new task in the database.
+ * Persists a new task in the database including description.
  * @returns The newly created task object.
  */
-export async function addTask(title: string): Promise<Task> {
-  const query = 'INSERT INTO tasks (id, title) VALUES (gen_random_uuid(), $1) RETURNING *;';
-  const result = await pool.query(query, [title]);
+export async function addTask(title: string, description: string = ''): Promise<Task> {
+  // CHANGED: Added description column to the INSERT query
+  const query = 'INSERT INTO tasks (id, title, description) VALUES (gen_random_uuid(), $1, $2) RETURNING *;';
+  const result = await pool.query(query, [title, description]);
   return result.rows[0] as Task;
 }
 
@@ -67,5 +70,5 @@ export async function deleteTask(id: string): Promise<boolean> {
 export async function completeTask(id: string): Promise<Task | null> {
   const query = 'UPDATE tasks SET completed = NOT completed WHERE id = $1 RETURNING *;';
   const result = await pool.query(query, [id]);
-  return result.rows[0] || null;
+  return (result.rows[0] as Task) || null;
 }

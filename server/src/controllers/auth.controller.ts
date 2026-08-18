@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { createUser, findUserByEmail } from '../services/user.service.js';
 
-const JWT_SECRET = process.env.JWT_SECRET as string;
+const JWT_SECRET = process.env.ACCESS_TOKEN_SECRET as string;
 
 /**
  * HTTP Handler for creating a new user account.

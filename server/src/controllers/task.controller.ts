@@ -30,18 +30,21 @@ export async function getTasksHandler(req: AuthenticatedRequest, res: Response) 
 }
 
 /**
- * HTTP Handler to create a new task. Invalidates user cache to ensure data consistency.
+ * HTTP Handler to create a new task with title and description. Invalidates user cache.
  */
 export async function createTaskHandler(req: AuthenticatedRequest, res: Response) {
   try {
     const userId = req.user!.id;
-    const { title } = req.body;
+    // CHANGED: Extracted both title and description from request body
+    const { title, description } = req.body;
 
     if (!title || typeof title !== 'string') {
-      return res.status(400).json({ error: 'Title is required.' });
+      return res.status(400).json({ error: 'Task title is required.' });
     }
 
-    const newTask = await addTask(title);
+    const taskDescription = typeof description === 'string' ? description : '';
+    // CHANGED: Passed description to addTask service function
+    const newTask = await addTask(title, taskDescription);
     await invalidateUserTaskCache(userId);
 
     return res.status(201).json(newTask);
@@ -86,7 +89,7 @@ export async function deleteTaskHandler(req: AuthenticatedRequest, res: Response
     }
 
     await invalidateUserTaskCache(userId);
-    return res.json({ message: 'Task deleted successfully.', id });
+    return res.status(204).send();
   } catch (error) {
     console.error('Failed to delete task:', error);
     return res.status(500).json({ error: 'Internal Server Error' });
