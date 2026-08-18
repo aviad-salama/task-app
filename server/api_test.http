@@ -1,6 +1,6 @@
 # --- REST Client Tests for Refactored Task Tracker API ---
-
-@baseUrl = http://localhost:3000/api
+import { API_BASE_URL } from '../client/config/api';
+@baseUrl = API_BASE_URL
 
 ### 1a. Register a new user
 POST {{baseUrl}}/register

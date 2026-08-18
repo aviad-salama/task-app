@@ -2,7 +2,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 import Task from '../components/Task';
 import AddNewTask from '../components/AddNewTask';
-import { TaskType } from '../types/task';
+import { TaskType, BackendTaskItem } from '../types/task';
+import { API_BASE_URL } from '../config/api';
 
 // Interface defining props for MainPage
 interface MainPageProps {
@@ -19,7 +20,7 @@ function MainPage({ token, onLogout }: MainPageProps) {
   const { data: tasks = [], isLoading, isError } = useQuery<TaskType[]>({
     queryKey: ['tasks'],
     queryFn: async () => {
-      const res = await fetch('http://localhost:3000/api/tasks', {
+      const res = await fetch(`${API_BASE_URL}/api/tasks`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -30,7 +31,7 @@ function MainPage({ token, onLogout }: MainPageProps) {
       const responseData = await res.json();
 
       // Extract array based on backend response wrapper
-      let tasksArray: any[] = [];
+      let tasksArray: BackendTaskItem[] = [];
       if (Array.isArray(responseData)) {
         tasksArray = responseData;
       } else if (responseData.data && Array.isArray(responseData.data)) {
@@ -40,7 +41,7 @@ function MainPage({ token, onLogout }: MainPageProps) {
       }
 
       // Map backend properties ('title') to frontend expected properties ('name')
-      const mappedTasks: TaskType[] = tasksArray.map((item: any) => ({
+      const mappedTasks: TaskType[] = tasksArray.map((item: BackendTaskItem) => ({
         id: item.id,
         name: item.title || item.name || '',
         description: item.description || '',
@@ -56,7 +57,7 @@ function MainPage({ token, onLogout }: MainPageProps) {
   // ==========================================
   const addTaskMutation = useMutation({
     mutationFn: async (newTask: TaskType) => {
-      const res = await fetch('http://localhost:3000/api/tasks', {
+      const res = await fetch(`${API_BASE_URL}/api/tasks`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -86,7 +87,7 @@ function MainPage({ token, onLogout }: MainPageProps) {
   // ==========================================
   const deleteTaskMutation = useMutation({
     mutationFn: async (id: string) => {
-      const res = await fetch(`http://localhost:3000/api/tasks/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/tasks/${id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -105,7 +106,7 @@ function MainPage({ token, onLogout }: MainPageProps) {
   // ==========================================
   const toggleTaskMutation = useMutation({
     mutationFn: async (task: TaskType) => {
-      const res = await fetch(`http://localhost:3000/api/tasks/${task.id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/tasks/${task.id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

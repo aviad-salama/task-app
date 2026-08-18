@@ -2,6 +2,7 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { useMutation } from '@tanstack/react-query';
 import { LoginData } from '../../types/auth';
 import { memo } from 'react';
+import { API_BASE_URL } from '../../config/api';
 
 interface LoginPageProps {
   onSwitchToSignup: () => void;
@@ -14,7 +15,7 @@ function LoginPage({ onSwitchToSignup, onLoginSuccess }: LoginPageProps) {
   // NEW: TanStack Mutation for the Login API call
   const loginMutation = useMutation({
     mutationFn: async (data: LoginData) => {
-      const res = await fetch('http://localhost:3000/api/auth/login', {
+      const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
