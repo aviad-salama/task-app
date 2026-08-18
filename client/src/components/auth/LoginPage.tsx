@@ -1,18 +1,34 @@
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { useMutation } from '@tanstack/react-query';
 import { LoginData } from '../../types/auth';
-import { memo } from 'react';
 import { API_BASE_URL } from '../../config/api';
+import { memo, useState, useEffect } from 'react';
 
 interface LoginPageProps {
   onSwitchToSignup: () => void;
   onLoginSuccess: (token: string) => void;
+  // NEW: Accept success message prop
+  successMessage?: string | null;
 }
 
-function LoginPage({ onSwitchToSignup, onLoginSuccess }: LoginPageProps) {
+function LoginPage({ onSwitchToSignup, onLoginSuccess, successMessage }: LoginPageProps) {
   const { register, handleSubmit, formState: { errors } } = useForm<LoginData>();
+  
+  // Local state to control the visibility of the success message
+  const [showSuccess, setShowSuccess] = useState(!!successMessage);
 
-  // NEW: TanStack Mutation for the Login API call
+  // Auto-hide the success message after 5 seconds
+  useEffect(() => {
+    if (successMessage) {
+      setShowSuccess(true);
+      const timer = setTimeout(() => {
+        setShowSuccess(false);
+      }, 5000);
+      
+      return () => clearTimeout(timer); // Cleanup timer if component unmounts early
+    }
+  }, [successMessage]);
+
   const loginMutation = useMutation({
     mutationFn: async (data: LoginData) => {
       const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
@@ -26,7 +42,6 @@ function LoginPage({ onSwitchToSignup, onLoginSuccess }: LoginPageProps) {
       }
       return res.json();
     },
-    // Trigger the success prop from App.tsx, passing the token
     onSuccess: (data) => {
       onLoginSuccess(data.token);
     }
@@ -37,14 +52,24 @@ function LoginPage({ onSwitchToSignup, onLoginSuccess }: LoginPageProps) {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-slate-950">
+    <div className="flex flex-col justify-center items-center h-screen bg-slate-950 px-4 relative">
+      
+      {/* SUCCESS TOAST MESSAGE - positioned at top right */}
+      {showSuccess && successMessage && (
+        <div className="absolute top-8 right-8 bg-emerald-600/90 border border-emerald-500 text-white px-6 py-3 rounded-lg shadow-lg shadow-emerald-900/20 backdrop-blur-sm animate-bounce-short">
+          <div className="flex items-center gap-2">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+            <span className="font-medium">{successMessage}</span>
+          </div>
+        </div>
+      )}
+
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="flex flex-col gap-3 bg-slate-800 p-6 rounded-lg border border-slate-700 w-full max-w-md"
       >
         <h1 className="text-2xl font-bold text-white text-center mb-2">Login</h1>
 
-        {/* CHANGED: Display error from TanStack Query if mutation fails */}
         {loginMutation.isError && (
           <div className="bg-red-900 border border-red-700 text-red-100 p-2 rounded text-sm text-center">
             {loginMutation.error.message}

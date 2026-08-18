@@ -1,49 +1,65 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import MainPage from './pages/MainPage';
 import LoginPage from './components/auth/LoginPage';
 import SignupPage from './components/auth/SignupPage';
-import MainPage from './pages/MainPage';
 
-// CHANGED: App now acts only as a simple router based on authentication state
 function App() {
-  // NEW: Store token in state, initialize from localStorage
-  const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
+  const [token, setToken] = useState<string | null>(null);
+  const [currentView, setCurrentView] = useState<'login' | 'signup' | 'main'>('login');
   
-  // NEW: State to toggle between login and signup views
-  const [authView, setAuthView] = useState<'login' | 'signup'>('login');
+  // NEW: State to store the success message after signup
+  const [signupSuccessMessage, setSignupSuccessMessage] = useState<string | null>(null);
 
-  // Helper to handle successful login
+  // Check for existing token on initial load
+  useEffect(() => {
+    const storedToken = localStorage.getItem('token');
+    if (storedToken) {
+      setToken(storedToken);
+      setCurrentView('main');
+    }
+  }, []);
+
   const handleLoginSuccess = (newToken: string) => {
     localStorage.setItem('token', newToken);
     setToken(newToken);
+    setCurrentView('main');
+    // Clear message when logging in
+    setSignupSuccessMessage(null);
   };
 
-  // Helper to handle logout
+  // CHANGED: Accept user name to show in the success message
+  const handleSignupSuccess = (userName: string) => {
+    setSignupSuccessMessage(`${userName} signed up successfully!`);
+    setCurrentView('login');
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('token');
     setToken(null);
+    setCurrentView('login');
   };
 
-  // If user is not logged in, show Auth views
-  if (!token) {
-    if (authView === 'login') {
-      return (
+  return (
+    <>
+      {currentView === 'login' && (
         <LoginPage 
-          onLoginSuccess={handleLoginSuccess} 
-          onSwitchToSignup={() => setAuthView('signup')} 
+          onSwitchToSignup={() => setCurrentView('signup')} 
+          onLoginSuccess={handleLoginSuccess}
+          // Pass the success message to LoginPage
+          successMessage={signupSuccessMessage}
         />
-      );
-    }
-    
-    return (
-      <SignupPage 
-        onSwitchToLogin={() => setAuthView('login')} 
-        onSignupSuccess={() => setAuthView('login')} // Return to login after signup
-      />
-    );
-  }
-
-  // If logged in, show the main tasks page
-  return <MainPage token={token} onLogout={handleLogout} />;
+      )}
+      {currentView === 'signup' && (
+        <SignupPage 
+          onSwitchToLogin={() => setCurrentView('login')}
+          onSignupSuccess={handleSignupSuccess}
+        />
+      )}
+      {currentView === 'main' && token && (
+        <MainPage token={token} onLogout={handleLogout} />
+      )}
+    </>
+  );
 }
 
 export default App;

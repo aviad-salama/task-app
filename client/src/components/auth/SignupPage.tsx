@@ -6,7 +6,8 @@ import { memo } from 'react';
 
 interface SignupPageProps {
   onSwitchToLogin: () => void;
-  onSignupSuccess: () => void;
+  // CHANGED: Accept the registered user's name
+  onSignupSuccess: (userName: string) => void;
 }
 
 function SignupPage({ onSwitchToLogin, onSignupSuccess }: SignupPageProps) {
@@ -25,8 +26,9 @@ function SignupPage({ onSwitchToLogin, onSignupSuccess }: SignupPageProps) {
       }
       return res.json();
     },
-    onSuccess: () => {
-      onSignupSuccess();
+    // CHANGED: Use the mutation's variables (the form data) to extract the name
+    onSuccess: (_, variables) => {
+      onSignupSuccess(variables.name);
     }
   });
 
@@ -34,6 +36,7 @@ function SignupPage({ onSwitchToLogin, onSignupSuccess }: SignupPageProps) {
     signupMutation.mutate(data);
   };
 
+  // ... (The rest of the return statement remains exactly the same)
   return (
     <div className="flex justify-center items-center h-screen bg-slate-950">
       <form
