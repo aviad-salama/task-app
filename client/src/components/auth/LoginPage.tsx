@@ -4,6 +4,7 @@ import { LoginData } from '../../types/auth';
 import { API_BASE_URL } from '../../config/api';
 import { memo, useState, useEffect } from 'react';
 
+//interface of the loginPage props.
 interface LoginPageProps {
   onSwitchToSignup: () => void;
   onLoginSuccess: (token: string) => void;
