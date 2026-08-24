@@ -1,17 +1,10 @@
 import { useCallback } from 'react';
-import Task from '../components/Task';
-import AddNewTask from '../components/AddNewTask';
-import { TaskType } from '../types/task';
-import { useTasks } from '../hooks/useTasks';
+import { useNavigate, Navigate } from 'react-router-dom';
+import Task from '../../components/Task';
+import AddNewTask from '../../components/AddNewTask';
+import { TaskType } from '../../types/task';
+import { useTasks } from '../../hooks/useTasks';
 
-interface MainPageProps {
-  token: string;
-  onLogout: () => void;
-}
-
-/**
- * Decodes base64 payload from JWT token.
- */
 function parseJwt(token: string) {
   try {
     return JSON.parse(atob(token.split('.')[1]));
@@ -20,16 +13,26 @@ function parseJwt(token: string) {
   }
 }
 
-function MainPage({ token, onLogout }: MainPageProps) {
-  // Extract user tasks and operations from custom hook
+export default function TasksPage() {
+  const navigate = useNavigate();
+  const token = localStorage.getItem('token');
+
+  // Protect route if no token is found
+  if (!token) {
+    return <Navigate to="/auth/login" replace />;
+  }
+
   const { tasks, isLoading, isError, addTask, deleteTask, toggleTask } = useTasks(token);
 
-  // Extract user's name directly from JWT payload
   const tokenPayload = parseJwt(token);
   const userName = tokenPayload?.name ? tokenPayload.name.trim() : '';
-  const pageTitle = `${userName}'s Tasks`;
+  const pageTitle = userName ? `${userName}'s Tasks` : 'My Tasks';
 
-  // Handlers memoized using useCallback
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/auth/login');
+  };
+
   const handleAddTask = useCallback(
     (newTask: TaskType) => {
       addTask(newTask);
@@ -54,7 +57,6 @@ function MainPage({ token, onLogout }: MainPageProps) {
     [tasks, toggleTask]
   );
 
-  // Guard clauses for Loading and Error states
   if (isLoading) {
     return <div className="text-white text-center mt-20 text-xl">Loading tasks...</div>;
   }
@@ -72,7 +74,7 @@ function MainPage({ token, onLogout }: MainPageProps) {
       <header className="w-full max-w-md flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-white capitalize">{pageTitle}</h1>
         <button
-          onClick={onLogout}
+          onClick={handleLogout}
           className="bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm px-3 py-1.5 rounded transition-colors border border-slate-700"
         >
           Logout
@@ -120,5 +122,3 @@ function MainPage({ token, onLogout }: MainPageProps) {
     </div>
   );
 }
-
-export default MainPage;

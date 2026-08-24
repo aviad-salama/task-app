@@ -1,7 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import authRoutes from './routes/auth.routes.js';
-import taskRoutes from './routes/task.routes.js';
+import apiRoutes from './routes/index.js';
 import { initDb } from './services/task.service.js';
 import cors from 'cors';
 
@@ -29,9 +28,8 @@ app.get('/', (req, res) => {
   res.json({ message: 'Task Tracker API is Running', status: 'Healthy' });
 });
 
-// Defines main application routes prefixes
-app.use('/api/auth', authRoutes);
-app.use('/api/tasks', taskRoutes);
+// Mount all API routes under /api prefix (/api/auth, /api/tasks)
+app.use('/api', apiRoutes);
 
 // Start the Express server
 app.listen(PORT, () => {

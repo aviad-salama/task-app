@@ -1,18 +1,18 @@
-# --- REST Client Tests for Refactored Task Tracker API ---
-import { API_BASE_URL } from '../client/config/api';
-@baseUrl = API_BASE_URL
+# --- REST Client Tests for Task Tracker API ---
+@baseUrl = http://localhost:3000/api
 
 ### 1a. Register a new user
-POST {{baseUrl}}/register
+POST {{baseUrl}}/auth/register
 Content-Type: application/json
 
 {
+    "name": "Refactor User",
     "email": "refactor_user@example.com",
     "password": "securepassword123"
 }
 
 ### 1b. Login to get JWT Token
-POST {{baseUrl}}/login
+POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
@@ -21,7 +21,7 @@ Content-Type: application/json
 }
 
 ### 2. Get all tasks (Protected Route)
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjNhNjU5NWFhLWE2M2YtNGRjNS05YTcwLTEyYTRlMmQxNjZhOSIsImVtYWlsIjoicmVmYWN0b3JfdXNlckBleGFtcGxlLmNvbSIsImlhdCI6MTc4NjY0NDYwOCwiZXhwIjoxNzg2NjQ4MjA4fQ.tVcB28oFn-wT7L5Chqv_f2e_O6bScQ4a7kSXuVE1ALA
+@token = YOUR_JWT_TOKEN_HERE
 
 GET {{baseUrl}}/tasks
 Authorization: Bearer {{token}}
