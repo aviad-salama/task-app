@@ -1,35 +1,23 @@
 import { useForm, SubmitHandler } from 'react-hook-form';
-import { useMutation } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
 import { LoginData } from '../../../types/auth';
-import { API_BASE_URL } from '../../../config/api';
+import { useAuth } from '../../../hooks/useAuth'; 
 import { memo } from 'react';
 
 function LoginPage() {
   const navigate = useNavigate();
   const { register, handleSubmit, formState: { errors } } = useForm<LoginData>();
 
-  const loginMutation = useMutation({
-    mutationFn: async (data: LoginData) => {
-      const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || errorData.error || 'Login failed');
-      }
-      return res.json();
-    },
-    onSuccess: (data) => {
-      localStorage.setItem('token', data.token);
-      navigate('/');
+  // Use our custom hook. Pass the success handler.
+  const { login, isLoginPending, loginError } = useAuth(
+    (token) => {
+      localStorage.setItem('token', token);
+      navigate('/'); // Redirect on success
     }
-  });
+  );
 
   const onSubmit: SubmitHandler<LoginData> = (data) => {
-    loginMutation.mutate(data);
+    login(data); // Call the function provided by the hook
   };
 
   return (
@@ -39,9 +27,10 @@ function LoginPage() {
     >
       <h1 className="text-2xl font-bold text-white text-center mb-2">Login</h1>
 
-      {loginMutation.isError && (
+      {/* Render error from the hook if exists */}
+      {loginError && (
         <div className="bg-red-900 border border-red-700 text-red-100 p-2 rounded text-sm text-center">
-          {loginMutation.error.message}
+          {loginError}
         </div>
       )}
 
@@ -67,10 +56,10 @@ function LoginPage() {
 
       <button
         type="submit"
-        disabled={loginMutation.isPending}
+        disabled={isLoginPending} // Use state from the hook
         className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded transition-colors disabled:bg-slate-600"
       >
-        {loginMutation.isPending ? 'Logging in...' : 'Login'}
+        {isLoginPending ? 'Logging in...' : 'Login'}
       </button>
 
       <p className="text-slate-400 text-sm text-center mt-2">

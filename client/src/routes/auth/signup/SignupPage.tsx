@@ -1,34 +1,23 @@
 import { useForm, SubmitHandler } from 'react-hook-form';
-import { useMutation } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
 import { SignupData } from '../../../types/auth';
-import { API_BASE_URL } from '../../../config/api';
+import { useAuth } from '../../../hooks/useAuth'; 
 import { memo } from 'react';
 
 function SignupPage() {
   const navigate = useNavigate();
   const { register, handleSubmit, formState: { errors } } = useForm<SignupData>();
 
-  const signupMutation = useMutation({
-    mutationFn: async (data: SignupData) => {
-      const res = await fetch(`${API_BASE_URL}/api/auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || errorData.message || 'Registration failed');
-      }
-      return res.json();
-    },
-    onSuccess: () => {
-      navigate('/auth/login');
+  // Use our custom hook. Pass the success handler.
+  const { signup, isSignupPending, signupError } = useAuth(
+    undefined, // We don't need the login success handler here
+    () => {
+      navigate('/auth/login'); // Redirect to login on success
     }
-  });
+  );
 
   const onSubmit: SubmitHandler<SignupData> = (data) => {
-    signupMutation.mutate(data);
+    signup(data); // Call the function provided by the hook
   };
 
   return (
@@ -38,9 +27,10 @@ function SignupPage() {
     >
       <h1 className="text-2xl font-bold text-white text-center mb-2">Create Account</h1>
 
-      {signupMutation.isError && (
+      {/* Render error from the hook if exists */}
+      {signupError && (
         <div className="bg-red-900 border border-red-700 text-red-100 p-2 rounded text-sm text-center">
-          {signupMutation.error.message}
+          {signupError}
         </div>
       )}
 
@@ -79,10 +69,10 @@ function SignupPage() {
 
       <button
         type="submit"
-        disabled={signupMutation.isPending}
+        disabled={isSignupPending} // Use state from the hook
         className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded transition-colors disabled:bg-slate-600"
       >
-        {signupMutation.isPending ? 'Creating Account...' : 'Sign up'}
+        {isSignupPending ? 'Creating Account...' : 'Sign up'}
       </button>
 
       <p className="text-slate-400 text-sm text-center mt-2">
