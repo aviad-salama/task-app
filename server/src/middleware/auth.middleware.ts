@@ -1,6 +1,6 @@
 import { type Response, type NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { type AuthenticatedRequest, type AuthenticatedUser } from '../types/express.d.js';
+import type { AuthenticatedRequest, AuthenticatedUser } from '../types/express.d.js';
 import { JWT_SECRET } from '../config/env.js';
 
 
