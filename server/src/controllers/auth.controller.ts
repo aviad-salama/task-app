@@ -2,8 +2,7 @@ import { type Request, type Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { createUser, findUserByEmail } from '../services/user.service.js';
-
-const JWT_SECRET = process.env.ACCESS_TOKEN_SECRET as string;
+import { JWT_SECRET } from '../config/env.js';
 
 /**
  * HTTP Handler for creating a new user account.
@@ -49,6 +48,7 @@ export async function registerHandler(req: Request, res: Response) {
 /**
  * HTTP Handler for authenticating a user.
  * Validates credentials and returns a signed JWT token on success.
+ * Embeds name in JWT payload.
  */
 export async function loginHandler(req: Request, res: Response) {
   try {
@@ -69,7 +69,7 @@ export async function loginHandler(req: Request, res: Response) {
     }
 
     // Embed mandatory name into JWT payload
-    const payload = { id: user.id, email: user.email, name: user.name };
+    const payload = { id: user.id, email: user.email, name: user.name || '' };
     const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '24h' });
 
     return res.json({ token });
@@ -77,4 +77,5 @@ export async function loginHandler(req: Request, res: Response) {
     console.error('Login failed:', error);
     return res.status(500).json({ error: 'Internal Server Error' });
   }
+
 }

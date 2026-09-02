@@ -1,18 +1,9 @@
-import { type Request, type Response, type NextFunction } from 'express';
+import { type Response, type NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import { type AuthenticatedRequest, type AuthenticatedUser } from '../types/express.d.js';
+import { JWT_SECRET } from '../config/env.js';
 
-// Extend Express Request type locally to include user payload from JWT
-export interface AuthenticatedUser {
-  userId: number | string;
-  email: string;
-  [key: string]: any;
-}
 
-export interface AuthenticatedRequest extends Request {
-  user?: AuthenticatedUser;
-}
-
-const JWT_SECRET = process.env.ACCESS_TOKEN_SECRET as string;
 
 if (!JWT_SECRET) {
   throw new Error('JWT_SECRET is not defined in environment variables.');

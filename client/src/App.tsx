@@ -3,7 +3,7 @@ import AppRoutes from './routes';
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter> {/* Main context provider for the entire app */}
       <AppRoutes />
     </BrowserRouter>
   );

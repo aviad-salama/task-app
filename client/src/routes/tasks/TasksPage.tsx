@@ -5,6 +5,9 @@ import AddNewTask from '../../components/AddNewTask';
 import { TaskType } from '../../types/task';
 import { useTasks } from '../../hooks/useTasks';
 
+/**
+ * Decodes base64 payload from JWT token.
+ */
 function parseJwt(token: string) {
   try {
     return JSON.parse(atob(token.split('.')[1]));
@@ -16,14 +19,14 @@ function parseJwt(token: string) {
 export default function TasksPage() {
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
-
+  const { tasks, isLoading, isError, addTask, deleteTask, toggleTask } = useTasks(token || '');
+  
   // Protect route if no token is found
   if (!token) {
     return <Navigate to="/auth/login" replace />;
   }
 
-  const { tasks, isLoading, isError, addTask, deleteTask, toggleTask } = useTasks(token);
-
+  // Extract user's mandatory name directly from JWT payload
   const tokenPayload = parseJwt(token);
   const userName = tokenPayload?.name ? tokenPayload.name.trim() : '';
   const pageTitle = userName ? `${userName}'s Tasks` : 'My Tasks';
@@ -65,9 +68,9 @@ export default function TasksPage() {
     return <div className="text-red-500 text-center mt-20 text-xl">Error loading tasks from server</div>;
   }
 
-  const safeTasks = Array.isArray(tasks) ? tasks : [];
-  const activeTasks = safeTasks.filter((task) => !task.completed);
-  const completedTasks = safeTasks.filter((task) => task.completed);
+  // Filter tasks directly, no need for safeTasks fallback since useTasks guarantees an array
+  const activeTasks = tasks.filter((task) => !task.completed);
+  const completedTasks = tasks.filter((task) => task.completed);
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-200 font-sans p-4 md:p-8 flex flex-col items-center">

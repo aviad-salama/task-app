@@ -6,5 +6,5 @@ export interface LoginData{
 
 //Defining the data structure of a signup input
 export interface SignupData extends LoginData {
-  name: string; // בהנחה שצריך גם שם בהרשמה
+  name: string; // Name is required for registration
 }

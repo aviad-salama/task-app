@@ -2,7 +2,9 @@ import { API_BASE_URL } from '../config/api';
 import { TaskType, BackendTaskItem } from '../types/task';
 
 /**
- * Fetches all tasks for the authenticated user from the backend.
+ * This function receives an authentication token string.
+ * It fetches the current user tasks from the API.
+ * It returns an array of mapped TaskType objects.
  */
 export async function fetchTasks(token: string): Promise<TaskType[]> {
   const res = await fetch(`${API_BASE_URL}/api/tasks`, {
@@ -14,26 +16,22 @@ export async function fetchTasks(token: string): Promise<TaskType[]> {
   }
 
   const responseData = await res.json();
-
-  let tasksArray: BackendTaskItem[] = [];
-  if (Array.isArray(responseData)) {
-    tasksArray = responseData;
-  } else if (responseData.data && Array.isArray(responseData.data)) {
-    tasksArray = responseData.data;
-  } else if (responseData.tasks && Array.isArray(responseData.tasks)) {
-    tasksArray = responseData.tasks;
-  }
+  
+  const tasksArray: BackendTaskItem[] = responseData.data || [];
+  
 
   return tasksArray.map((item: BackendTaskItem) => ({
     id: item.id,
-    name: item.title || item.name || '',
-    description: item.description || item.details || item.body || item.content || item.desc || '',
+    name: item.title || '',
+    description: item.description || '',
     completed: Boolean(item.completed)
   }));
 }
 
 /**
- * Sends a POST request to create a new task.
+ * This function receives a new task object and a token.
+ * It sends a request to the server to create the task.
+ * It returns the confirmed task object from the backend.
  */
 export async function addTaskApi(newTask: TaskType, token: string): Promise<TaskType> {
   const res = await fetch(`${API_BASE_URL}/api/tasks`, {
@@ -56,7 +54,9 @@ export async function addTaskApi(newTask: TaskType, token: string): Promise<Task
 }
 
 /**
- * Sends a DELETE request to delete a task by ID.
+ * This function receives a task ID and a token.
+ * It executes a delete request against the API.
+ * It returns nothing (void) upon success.
  */
 export async function deleteTaskApi(id: string, token: string): Promise<void> {
   const res = await fetch(`${API_BASE_URL}/api/tasks/${id}`, {
@@ -70,7 +70,9 @@ export async function deleteTaskApi(id: string, token: string): Promise<void> {
 }
 
 /**
- * Sends a PATCH request to toggle task completion status.
+ * This function receives a task object and a token.
+ * It sends a patch request to flip the task completion status.
+ * It returns nothing (void) upon success.
  */
 export async function toggleTaskApi(task: TaskType, token: string): Promise<void> {
   const res = await fetch(`${API_BASE_URL}/api/tasks/${task.id}`, {

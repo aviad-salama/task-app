@@ -8,7 +8,7 @@ const queryClient = new QueryClient();
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    {/* 2. עטיפת App כך שכל הקומפוננטות יוכלו להשתמש ב-useQuery */}
+    {/* Wrap App with QueryClientProvider so all components can use react-query */}
     <QueryClientProvider client={queryClient}>
       <App />
     </QueryClientProvider>

@@ -20,15 +20,14 @@ function AddNewTask({ onAddTask }: AddNewTaskProps) {
 
   // Runs only if form validations pass
   const onSubmit: SubmitHandler<TaskContent> = (data) => {
-    const newTask: TaskType = {
-      id: crypto.randomUUID(),
+    const newTask = {
       name: data.name.trim(),
       description: data.description?.trim() ?? '',
       completed: false
     };
 
     // Pass new task to parent component
-    onAddTask(newTask);
+    onAddTask(newTask as TaskType);
 
     // Reset input fields
     reset();
@@ -45,7 +44,7 @@ function AddNewTask({ onAddTask }: AddNewTaskProps) {
           placeholder="Task name"
           // Register field with validation rule
           {...register('name', { required: 'Task name is required' })}
-          className="p-2 bg-slate-900 border border-slate-700 rounded text-white focus:outline-none focus:border-indigo-500"
+          className="form-input"
         />
         {/* Render validation error if present */}
         {errors.name && (
@@ -58,13 +57,13 @@ function AddNewTask({ onAddTask }: AddNewTaskProps) {
           type="text"
           placeholder="Task description"
           {...register('description')}
-          className="p-2 bg-slate-900 border border-slate-700 rounded text-white focus:outline-none focus:border-indigo-500"
+          className="form-input"
         />
       </div>
 
       <button
         type="submit"
-        className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded transition-colors"
+        className="form-button"
       >
         Add Task
       </button>

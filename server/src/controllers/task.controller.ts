@@ -1,7 +1,8 @@
 import { type Response } from 'express';
-import type { AuthenticatedRequest, AuthenticatedUser } from '../types/express.d.js';
+import type { AuthenticatedRequest} from '../types/express.d.js';
 import { addTask, listTasks, deleteTask, completeTask, type Task } from '../services/task.service.js';
 import { getCache, setCache, invalidateUserTaskCache } from '../services/cache.service.js';
+
 
 /**
  * HTTP Handler to list tasks belonging to the authenticated user.

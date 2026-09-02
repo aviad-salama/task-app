@@ -15,9 +15,5 @@ export interface BackendTaskItem {
   title?: string;
   name?: string;
   description?: string;
-  details?: string;
-  body?: string;
-  content?: string;
-  desc?: string;
   completed?: boolean;
 }

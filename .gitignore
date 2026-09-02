@@ -18,3 +18,9 @@ build/
 
 # Help files
 repomix-output.xml
+
+#prisma files that are not neccesery for me 
+.agents/
+.claude/
+.cursor/
+.devin/

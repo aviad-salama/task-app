@@ -1,7 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import apiRoutes from './routes/index.js';
-import { initDb } from './services/task.service.js';
+
 import cors from 'cors';
 
 dotenv.config();
@@ -12,16 +12,6 @@ const PORT = process.env.PORT || 3000;
 app.use(cors()); //used in order to prevent a web blocking.
 
 app.use(express.json());// Middleware to parse JSON payloads
-
-// Initialize Database Tables on server startup
-(async () => {
-  try {
-    await initDb();
-    console.log('Database initialized successfully.');
-  } catch (error) {
-    console.error('Database initialization failed:', error);
-  }
-})();
 
 // Basic Health Check Route
 app.get('/', (req, res) => {

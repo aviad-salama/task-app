@@ -42,7 +42,7 @@ function SignupPage() {
             required: 'Full name is required',
             validate: (value) => value.trim().length > 0 || 'Full name cannot be empty'
           })}
-          className="p-2 bg-slate-900 border border-slate-700 rounded text-white focus:outline-none focus:border-indigo-500"
+          className="form-input"
         />
         {errors.name && <span className="text-red-400 text-sm">{errors.name.message}</span>}
       </div>
@@ -52,7 +52,7 @@ function SignupPage() {
           type="email"
           placeholder="Email address"
           {...register('email', { required: 'Email is required' })}
-          className="p-2 bg-slate-900 border border-slate-700 rounded text-white focus:outline-none focus:border-indigo-500"
+          className="form-input"
         />
         {errors.email && <span className="text-red-400 text-sm">{errors.email.message}</span>}
       </div>
@@ -62,7 +62,7 @@ function SignupPage() {
           type="password"
           placeholder="Password"
           {...register('password', { required: 'Password is required', minLength: 6 })}
-          className="p-2 bg-slate-900 border border-slate-700 rounded text-white focus:outline-none focus:border-indigo-500"
+          className="form-input"
         />
         {errors.password && <span className="text-red-400 text-sm">{errors.password.message}</span>}
       </div>
@@ -70,7 +70,7 @@ function SignupPage() {
       <button
         type="submit"
         disabled={isSignupPending} // Use state from the hook
-        className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded transition-colors disabled:bg-slate-600"
+        className="form-button"
       >
         {isSignupPending ? 'Creating Account...' : 'Sign up'}
       </button>
