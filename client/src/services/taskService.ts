@@ -2,6 +2,18 @@ import { API_BASE_URL } from '../config/api';
 import { TaskType, BackendTaskItem } from '../types/task';
 
 /**
+ * Helper function to handle authorization errors.
+ * Clears the token and redirects to login on 401 or 403 responses.
+ */
+function handleAuthError(res: Response) {
+  if (res.status === 401 || res.status === 403) {
+    localStorage.removeItem('token');
+    window.location.href = '/auth/login';
+    throw new Error('Session expired, redirecting...');
+  }
+}
+
+/**
  * This function receives an authentication token string.
  * It fetches the current user tasks from the API.
  * It returns an array of mapped TaskType objects.
@@ -12,6 +24,7 @@ export async function fetchTasks(token: string): Promise<TaskType[]> {
   });
 
   if (!res.ok) {
+    handleAuthError(res);
     throw new Error('Failed to fetch tasks');
   }
 
@@ -19,7 +32,6 @@ export async function fetchTasks(token: string): Promise<TaskType[]> {
   
   const tasksArray: BackendTaskItem[] = responseData.data || [];
   
-
   return tasksArray.map((item: BackendTaskItem) => ({
     id: item.id,
     name: item.title || '',
@@ -47,6 +59,7 @@ export async function addTaskApi(newTask: TaskType, token: string): Promise<Task
   });
 
   if (!res.ok) {
+    handleAuthError(res);
     throw new Error('Failed to add task');
   }
 
@@ -65,6 +78,7 @@ export async function deleteTaskApi(id: string, token: string): Promise<void> {
   });
 
   if (!res.ok) {
+    handleAuthError(res);
     throw new Error('Failed to delete task');
   }
 }
@@ -85,6 +99,7 @@ export async function toggleTaskApi(task: TaskType, token: string): Promise<void
   });
 
   if (!res.ok) {
+    handleAuthError(res);
     throw new Error('Failed to update task');
   }
 }
