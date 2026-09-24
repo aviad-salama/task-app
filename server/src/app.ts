@@ -1,35 +1,25 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import authRoutes from './routes/auth.routes.js';
-import taskRoutes from './routes/task.routes.js';
-import { initDb } from './services/task.service.js';
+import apiRoutes from './routes/index.js';
+
+import cors from 'cors';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware to parse JSON payloads
-app.use(express.json());
+app.use(cors()); //used in order to prevent a web blocking.
 
-// Initialize Database Tables on server startup
-(async () => {
-  try {
-    await initDb();
-    console.log('Database initialized successfully.');
-  } catch (error) {
-    console.error('Database initialization failed:', error);
-  }
-})();
+app.use(express.json());// Middleware to parse JSON payloads
 
 // Basic Health Check Route
 app.get('/', (req, res) => {
   res.json({ message: 'Task Tracker API is Running', status: 'Healthy' });
 });
 
-// Defines main application routes prefixes
-app.use('/api', authRoutes);
-app.use('/api/tasks', taskRoutes);
+// Mount all API routes under /api prefix (/api/auth, /api/tasks)
+app.use('/api', apiRoutes);
 
 // Start the Express server
 app.listen(PORT, () => {

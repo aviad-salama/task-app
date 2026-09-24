@@ -1,32 +1,31 @@
-import { pool } from '../config/database.js';
+import { db } from '../prisma/db.js';
 
-/**
- * Interface representing the User entity in the database.
- */
 export interface User {
   id: string;
   email: string;
   password_hash: string;
-  created_at: Date;
+  name: string | null;
+  created_at: string | Date | any;
 }
 
 /**
- * Persists a new user in the database.
- * The password hash must be generated before calling this function.
- * @returns The newly created user object, excluding the password hash.
+ * Creates a new user record in the database.
  */
-export async function createUser(email: string, passwordHash: string): Promise<User> {
-  const query = 'INSERT INTO users (email, password_hash) VALUES ($1, $2) RETURNING id, email, created_at;';
-  const result = await pool.query(query, [email, passwordHash]);
-  return result.rows[0] as User;
+export async function createUser(email: string, passwordHash: string, name: string): Promise<User> {
+  // Use 'as any' to bypass the strict Char<36> requirement for generated fields
+  const newUser = await db.orm.public.User.create({
+    email: email,
+    password_hash: passwordHash,
+    name: name.trim(),
+  } as any);
+  
+  return newUser as unknown as User;
 }
 
 /**
- * Fetches a user from the database by email address.
- * @returns The user object or null if not found.
+ * Retrieves a user record by their email address.
  */
 export async function findUserByEmail(email: string): Promise<User | null> {
-  const query = 'SELECT * FROM users WHERE email = $1;';
-  const result = await pool.query(query, [email]);
-  return result.rows[0] || null;
+  const user = await db.orm.public.User.where({ email: email }).first();
+  return (user as unknown as User) || null;
 }

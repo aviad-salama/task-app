@@ -1,19 +1,17 @@
 import { Redis } from '@upstash/redis';
-import dotenv from 'dotenv';
+import { UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN } from '../config/env.js';
 
-dotenv.config();
-
-const url = process.env.UPSTASH_REDIS_REST_URL;
-const token = process.env.UPSTASH_REDIS_REST_TOKEN;
-
-if (!url || !token) {
+if (!UPSTASH_REDIS_REST_URL || !UPSTASH_REDIS_REST_TOKEN) {
   throw new Error('Redis configuration is missing in environment variables.');
 }
 
 /**
  * Initialized Upstash Redis Client instance for caching.
  */
-export const redis = new Redis({ url, token });
+export const redis = new Redis({ 
+  url: UPSTASH_REDIS_REST_URL, 
+  token: UPSTASH_REDIS_REST_TOKEN 
+});
 
 /**
  * Fetches cached data from Redis. Fallbacks gracefully to PostgreSQL if Redis fails.

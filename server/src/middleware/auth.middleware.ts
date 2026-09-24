@@ -1,8 +1,9 @@
 import { type Response, type NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { type AuthenticatedRequest, type AuthenticatedUser } from '../types/express.d.js';
+import type { AuthenticatedRequest, AuthenticatedUser } from '../types/express.d.js';
+import { JWT_SECRET } from '../config/env.js';
 
-const JWT_SECRET = process.env.JWT_SECRET as string;
+
 
 if (!JWT_SECRET) {
   throw new Error('JWT_SECRET is not defined in environment variables.');

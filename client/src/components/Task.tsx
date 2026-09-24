@@ -1,11 +1,7 @@
 import { memo } from "react";
-import { TaskContent } from "../types/task";
+import { TaskType } from "../types/task";
 
-type TaskProps = TaskContent & {
-  id: string;
-  name: string;
-  description: string;
-  completed: boolean;
+type TaskProps = TaskType & {
   onDelete: (id: string) => void;
   onComplete: (id: string) => void;
 };

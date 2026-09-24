@@ -1,1 +1,11 @@
 @import "tailwindcss";
+
+@layer components {
+  .form-input {
+    @apply p-2 bg-slate-900 border border-slate-700 rounded text-white focus:outline-none focus:border-indigo-500;
+  }
+  
+  .form-button {
+    @apply bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded transition-colors disabled:bg-slate-600;
+  }
+}
