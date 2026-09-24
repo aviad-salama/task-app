@@ -13,7 +13,6 @@ export interface TaskType extends TaskContent {
 export interface BackendTaskItem {
   id: string;
   title?: string;
-  name?: string;
   description?: string;
   completed?: boolean;
 }

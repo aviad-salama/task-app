@@ -19,7 +19,7 @@ export async function loginApi(data: LoginData): Promise<{ token: string }> {
   }
 
   return res.json();
-}//sda
+}
 
 /**
  * Service function to handle user registration.
