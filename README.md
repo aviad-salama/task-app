@@ -3,6 +3,7 @@
 A modern, full-stack task management application built with React, Node.js, and PostgreSQL. This project demonstrates industry-standard architectural patterns, secure authentication, and optimistic UI updates.
 
 **🔗 [Live Demo - https://task-app-beige-phi.vercel.app/](#)**
+
 **🔗 [Backend API - https://task-api-backend-7oze.onrender.com](#)**
 
 ## Features
