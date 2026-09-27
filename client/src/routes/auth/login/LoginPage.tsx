@@ -38,6 +38,7 @@ function LoginPage() {
         <input
           type="email"
           placeholder="Email address"
+          autoComplete="email"
           {...register('email', { required: 'Email is required' })}
           className="form-input"
         />
@@ -48,6 +49,7 @@ function LoginPage() {
         <input
           type="password"
           placeholder="Password"
+          autoComplete="current-password"
           {...register('password', { required: 'Password is required' })}
           className="form-input"
         />

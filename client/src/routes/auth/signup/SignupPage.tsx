@@ -38,6 +38,7 @@ function SignupPage() {
         <input
           type="text"
           placeholder="Full Name"
+          autoComplete="name"
           {...register('name', { 
             required: 'Full name is required',
             validate: (value) => value.trim().length > 0 || 'Full name cannot be empty'
