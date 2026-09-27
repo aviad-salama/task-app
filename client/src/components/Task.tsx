@@ -10,12 +10,12 @@ type TaskProps = TaskType & {
 function Task({ id, name, description, completed, onDelete, onComplete }: TaskProps) {
   return (
     // Main container positioned relatively for the absolute delete button
-    <div className="relative bg-slate-800 p-4 pr-12 rounded-lg border border-slate-700 flex items-center justify-between gap-4">
+    <div className="relative bg-white dark:bg-slate-800 p-4 pr-12 rounded-lg border border-slate-200 dark:border-slate-700 flex items-center justify-between gap-4">
       
       {/* Absolute delete button at top-right */}
       <button
         onClick={() => onDelete(id)}
-        className="absolute top-2 right-2 text-slate-400 hover:text-red-400 hover:bg-slate-700/60 w-7 h-7 rounded-full flex items-center justify-center transition-colors text-lg leading-none"
+        className="absolute top-2 right-2 text-slate-400 dark:text-slate-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-slate-200/60 dark:hover:bg-slate-700/60 w-7 h-7 rounded-full flex items-center justify-center transition-colors text-lg leading-none"
         title="Delete task"
         aria-label="Delete task"
       >
@@ -24,10 +24,10 @@ function Task({ id, name, description, completed, onDelete, onComplete }: TaskPr
 
       {/* Task text content wrapper with min-w-0 to handle long text wrapping */}
       <div className="flex flex-col gap-1 flex-1 min-w-0">
-        <h2 className={`text-xl font-bold ${completed ? 'text-slate-500' : 'text-indigo-400'}`}>
+        <h2 className={`text-xl font-bold ${completed ? 'text-slate-500' : 'text-indigo-600 dark:text-indigo-400'}`}>
           {name}
         </h2>
-        <p className={`text-base wrap-break-word ${completed ? 'text-slate-500' : 'text-slate-300'}`}>
+        <p className={`text-base wrap-break-word ${completed ? 'text-slate-500' : 'text-slate-600 dark:text-slate-300'}`}>
           {description}
         </p>
       </div>

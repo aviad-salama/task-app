@@ -23,13 +23,13 @@ function SignupPage() {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="flex flex-col gap-3 bg-slate-800 p-6 rounded-lg border border-slate-700 w-full max-w-md"
+      className="flex flex-col gap-3 bg-white dark:bg-slate-800 p-6 rounded-lg border border-slate-200 dark:border-slate-700 w-full max-w-md"
     >
-      <h1 className="text-2xl font-bold text-white text-center mb-2">Create Account</h1>
+      <h1 className="text-2xl font-bold text-slate-900 dark:text-white text-center mb-2">Create Account</h1>
 
       {/* Render error from the hook if exists */}
       {signupError && (
-        <div className="bg-red-900 border border-red-700 text-red-100 p-2 rounded text-sm text-center">
+        <div className="bg-red-100 dark:bg-red-900 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-100 p-2 rounded text-sm text-center">
           {signupError}
         </div>
       )}
@@ -45,7 +45,7 @@ function SignupPage() {
           })}
           className="form-input"
         />
-        {errors.name && <span className="text-red-400 text-sm">{errors.name.message}</span>}
+        {errors.name && <span className="text-red-600 dark:text-red-400 text-sm">{errors.name.message}</span>}
       </div>
 
       <div className="flex flex-col gap-1">
@@ -55,7 +55,7 @@ function SignupPage() {
           {...register('email', { required: 'Email is required' })}
           className="form-input"
         />
-        {errors.email && <span className="text-red-400 text-sm">{errors.email.message}</span>}
+        {errors.email && <span className="text-red-600 dark:text-red-400 text-sm">{errors.email.message}</span>}
       </div>
 
       <div className="flex flex-col gap-1">
@@ -65,7 +65,7 @@ function SignupPage() {
           {...register('password', { required: 'Password is required', minLength: 6 })}
           className="form-input"
         />
-        {errors.password && <span className="text-red-400 text-sm">{errors.password.message}</span>}
+        {errors.password && <span className="text-red-600 dark:text-red-400 text-sm">{errors.password.message}</span>}
       </div>
 
       <button
@@ -76,9 +76,9 @@ function SignupPage() {
         {isSignupPending ? 'Creating Account...' : 'Sign up'}
       </button>
 
-      <p className="text-slate-400 text-sm text-center mt-2">
+      <p className="text-slate-500 dark:text-slate-400 text-sm text-center mt-2">
         Already have an account?{' '}
-        <Link to="/auth/login" className="text-indigo-400 hover:text-indigo-300 font-medium">
+        <Link to="/auth/login" className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 font-medium">
           Login
         </Link>
       </p>
