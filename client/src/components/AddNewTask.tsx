@@ -36,7 +36,7 @@ function AddNewTask({ onAddTask }: AddNewTaskProps) {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="flex flex-col gap-3 bg-slate-800 p-4 rounded-lg border border-slate-700">
+      className="flex flex-col gap-3 bg-white dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
 
       <div className="flex flex-col gap-1">
         <input
@@ -48,7 +48,7 @@ function AddNewTask({ onAddTask }: AddNewTaskProps) {
         />
         {/* Render validation error if present */}
         {errors.name && (
-          <span className="text-red-400 text-sm">{errors.name.message}</span>
+          <span className="text-red-600 dark:text-red-400 text-sm">{errors.name.message}</span>
         )}
       </div>
 

@@ -9,7 +9,7 @@ export default function AuthLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col justify-center items-center px-4">
+    <div className="min-h-screen flex flex-col justify-center items-center px-4">
       {/* Outlet renders either LoginPage or SignupPage */}
       <Outlet />
     </div>
