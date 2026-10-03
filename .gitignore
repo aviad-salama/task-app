@@ -1,12 +1,10 @@
 # Dependencies
 node_modules/
-client/node_modules/
-server/node_modules/
 
 # Environment Variables
 .env
-client/.env
-server/.env
+.env.local
+.env.*.local
 
 # Build outputs
 dist/
@@ -15,11 +13,15 @@ build/
 # OS / Editor files
 .DS_Store
 .vscode/
+.idea/
 
-# Help files
+# Tooling, Logs & Help files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 repomix-output.xml
 
-#prisma files that are not neccesery for me 
+# Prisma AI Agents files
 .agents/
 .claude/
 .cursor/
